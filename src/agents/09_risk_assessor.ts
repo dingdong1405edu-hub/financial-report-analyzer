@@ -100,7 +100,7 @@ function parseAgentResponse(text: string): Partial<ReportJSON> {
 
   return {
     risks: {
-      riskLevel: (VALID_RISK_LEVELS.has(riskLevel) ? riskLevel : 'Medium') as ReportJSON['risks']['riskLevel'],
+      riskLevel: (VALID_RISK_LEVELS.has(riskLevel) ? riskLevel : 'Medium') as 'Low' | 'Medium' | 'High' | 'Critical',
       identifiedRisks: Array.isArray(r.identifiedRisks)
         ? r.identifiedRisks.map((item: Record<string, unknown>) => {
             const sev = String(item.severity ?? 'Medium')

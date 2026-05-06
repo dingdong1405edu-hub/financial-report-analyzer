@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  serverExternalPackages: ['pdf-parse', 'xlsx', 'sharp'],
+  experimental: {
+    serverComponentsExternalPackages: ['pdf-parse', 'xlsx', 'sharp'],
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

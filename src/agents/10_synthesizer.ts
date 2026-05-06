@@ -103,7 +103,7 @@ function parseAgentResponse(text: string): Partial<ReportJSON> {
         ? s.recommendations.map((item: Record<string, unknown>) => {
             const priority = String(item.priority ?? 'Medium')
             return {
-              priority: (VALID_PRIORITIES.has(priority) ? priority : 'Medium') as ReportJSON['synthesis']['recommendations'][number]['priority'],
+              priority: (VALID_PRIORITIES.has(priority) ? priority : 'Medium') as 'Urgent' | 'High' | 'Medium' | 'Low',
               action: String(item.action ?? ''),
               rationale: String(item.rationale ?? ''),
               timeframe: String(item.timeframe ?? ''),
