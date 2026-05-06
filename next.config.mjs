@@ -2,7 +2,7 @@
 const nextConfig = {
   output: 'standalone',
   experimental: {
-    serverComponentsExternalPackages: ['pdf-parse', 'xlsx', 'sharp'],
+    serverComponentsExternalPackages: ['pdf-parse', 'xlsx', 'sharp', '@react-pdf/renderer', '@react-pdf/font', '@react-pdf/layout', '@react-pdf/pdfkit', 'fontkit'],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {

@@ -4,6 +4,7 @@ import { createElement } from 'react'
 import type { DocumentProps } from '@react-pdf/renderer'
 import { getSession } from '@/lib/session-store'
 import ReportDocument from '@/components/pdf/ReportDocument'
+import { registerFonts } from '@/lib/pdf-fonts'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    registerFonts()
+
     const element = createElement(
       ReportDocument,
       { reportJSON: session.reportJSON }
