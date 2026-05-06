@@ -36,6 +36,8 @@ export async function GET(req: NextRequest) {
 
   try {
     ensureFonts()
+    const families = Font.getRegisteredFontFamilies()
+    console.log('[export-pdf] fontsRegistered flag:', fontsRegistered, 'families:', families)
 
     const element = createElement(
       ReportDocument,
