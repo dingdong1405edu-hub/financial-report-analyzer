@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: 32,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     color: '#ffffff',
     textAlign: 'center',
     marginBottom: 16,

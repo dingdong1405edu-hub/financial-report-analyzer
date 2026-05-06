@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
     padding: 48,
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoSans',
   },
   sectionHeader: {
     backgroundColor: NAVY,
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   sectionHeaderText: {
     color: '#ffffff',
     fontSize: 13,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     letterSpacing: 0.5,
   },
   paragraph: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   swotTitle: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     marginBottom: 6,
     paddingBottom: 4,
     borderBottomWidth: 1,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   ratingValue: {
     fontSize: 22,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     color: NAVY,
   },
   ratingMax: {
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   subsectionTitle: {
     fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     color: NAVY,
     marginBottom: 8,
     marginTop: 12,
@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 10,
     marginRight: 8,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
   },
   recAction: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     color: '#222222',
     flex: 1,
   },

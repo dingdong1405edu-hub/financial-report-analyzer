@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
     padding: 48,
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoSans',
   },
   sectionHeader: {
     backgroundColor: NAVY,
@@ -19,11 +19,11 @@ const styles = StyleSheet.create({
   sectionHeaderText: {
     color: '#ffffff',
     fontSize: 13,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
   },
   subsectionTitle: {
     fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     color: NAVY,
     marginBottom: 8,
     marginTop: 12,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 10,
     color: '#222222',
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoSans', fontWeight: 700,
     flex: 1,
   },
   pageNumber: {

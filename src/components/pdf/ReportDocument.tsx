@@ -1,5 +1,8 @@
 import { Document, Page, StyleSheet } from '@react-pdf/renderer'
 import type { ReportJSON } from '@/types/report'
+import { registerFonts } from '@/lib/pdf-fonts'
+
+registerFonts()
 import CoverPage from './CoverPage'
 import ParsedSection from './ParsedSection'
 import SummarySection from './SummarySection'
@@ -19,7 +22,7 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 48,
     paddingHorizontal: 40,
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoSans',
   },
 })
 
