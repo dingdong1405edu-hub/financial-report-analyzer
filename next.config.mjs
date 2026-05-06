@@ -1,6 +1,5 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: 'standalone',
   serverExternalPackages: ['pdf-parse', 'xlsx', 'sharp'],
   webpack: (config, { isServer }) => {
