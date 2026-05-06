@@ -1,12 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { renderToBuffer } from '@react-pdf/renderer'
+import { Font, renderToBuffer } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import type { DocumentProps } from '@react-pdf/renderer'
+import fs from 'fs'
+import path from 'path'
 import { getSession } from '@/lib/session-store'
 import ReportDocument from '@/components/pdf/ReportDocument'
-import { registerFonts } from '@/lib/pdf-fonts'
 
 export const dynamic = 'force-dynamic'
+
+let fontsRegistered = false
+
+function ensureFonts() {
+  if (fontsRegistered) return
+  fontsRegistered = true
+  try {
+    const dir = path.join(process.cwd(), 'public', 'fonts')
+    const regularB64 = fs.readFileSync(path.join(dir, 'NotoSans-Regular.ttf')).toString('base64')
+    const boldB64 = fs.readFileSync(path.join(dir, 'NotoSans-Bold.ttf')).toString('base64')
+    Font.register({
+      family: 'NotoSans',
+      fonts: [
+        { src: `data:font/ttf;base64,${regularB64}`, fontWeight: 400 },
+        { src: `data:font/ttf;base64,${boldB64}`, fontWeight: 700 },
+      ],
+    })
+  } catch (err) {
+    fontsRegistered = false
+    console.error('[export-pdf] Failed to register fonts:', err)
+  }
+}
 
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get('sessionId')
@@ -21,7 +44,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    registerFonts()
+    ensureFonts()
 
     const element = createElement(
       ReportDocument,
