@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phân Tích BCTC AI — Test</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1e3a5f;
+    --navy2: #162d4a;
+    --blue: #2e86de;
+    --blue-dim: #1a5fa3;
+    --bg: #0d1117;
+    --card: #161b22;
+    --card2: #1c2330;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --green: #27ae60;
+    --red: #e74c3c;
+    --yellow: #f39c12;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 60px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.875rem;
+    margin-bottom: 36px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 680px;
+    overflow: hidden;
+  }
+
+  /* ── Upload Zone ── */
+  #upload-zone {
+    cursor: pointer;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 60px 24px;
+    text-align: center;
+    transition: border-color .2s, background .2s;
+    width: 100%;
+    max-width: 680px;
+  }
+  #upload-zone:hover, #upload-zone.drag { border-color: var(--blue); background: rgba(46,134,222,.06); }
+  #upload-zone .icon { font-size: 3rem; margin-bottom: 12px; }
+  #upload-zone .label { font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; }
+  #upload-zone .hint { font-size: 0.8rem; color: var(--muted); }
+  #file-input { display: none; }
+
+  /* ── Progress Card ── */
+  .card-header {
+    background: var(--card2);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .file-name { font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
+  .status-line { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+  .counter { text-align: right; white-space: nowrap; }
+  .counter strong { font-size: 1.5rem; }
+  .counter span { font-size: .8rem; color: var(--muted); }
+
+  .progress-bar-wrap { margin: 12px 20px 0; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--blue); border-radius: 99px; transition: width .4s ease; width: 0%; }
+
+  .agent-list { padding: 4px 0; }
+  .agent-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    border-bottom: 1px solid rgba(48,54,61,.5);
+    transition: background .15s;
+  }
+  .agent-row:last-child { border-bottom: none; }
+  .agent-row.running { background: rgba(46,134,222,.07); }
+  .agent-row.done    { background: rgba(39,174,96,.05); }
+  .agent-row.error   { background: rgba(231,76,60,.07); }
+
+  .agent-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .agent-icon.pending  { background: var(--card2); color: var(--muted); }
+  .agent-icon.running  { border: 2px solid var(--blue); border-top-color: transparent; animation: spin .8s linear infinite; }
+  .agent-icon.done     { background: rgba(39,174,96,.2); color: var(--green); }
+  .agent-icon.error    { background: rgba(231,76,60,.2); color: var(--red); }
+
+  .agent-name { font-size: .875rem; flex: 1; }
+  .agent-row.pending .agent-name  { color: var(--muted); }
+  .agent-row.running .agent-name  { color: var(--blue); font-weight: 600; }
+  .agent-row.done .agent-name     { color: #aad4a6; }
+  .agent-row.error .agent-name    { color: var(--red); }
+
+  .agent-badge {
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+  .badge-pending  { background: var(--card2); color: var(--muted); }
+  .badge-running  { background: rgba(46,134,222,.2); color: var(--blue); }
+  .badge-done     { background: rgba(39,174,96,.2); color: var(--green); }
+  .badge-error    { background: rgba(231,76,60,.2); color: var(--red); }
+
+  /* ── Actions ── */
+  .card-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    background: rgba(39,174,96,.06);
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { opacity: .88; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: var(--blue); color: #fff; flex: 1; justify-content: center; }
+  .btn-secondary { background: var(--card2); color: var(--muted); border: 1px solid var(--border); }
+  .btn-partial { background: var(--card2); color: var(--muted); border: 1px solid var(--border); width: 100%; justify-content: center; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  /* ── Error ── */
+  .error-box {
+    display: none;
+    background: rgba(231,76,60,.1);
+    border: 1px solid rgba(231,76,60,.4);
+    border-radius: 10px;
+    padding: 14px 18px;
+    width: 100%;
+    max-width: 680px;
+  }
+  .error-box.show { display: flex; align-items: flex-start; gap: 10px; }
+  .error-icon { font-size: 1.1rem; padding-top: 1px; flex-shrink: 0; }
+  .error-title { font-weight: 600; color: var(--red); font-size: .9rem; }
+  .error-msg { font-size: .8rem; color: #c89; margin-top: 2px; }
+  .error-retry { font-size: .8rem; color: var(--red); text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; white-space: nowrap; margin-left: auto; }
+
+  /* ── Info cards ── */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 680px;
+  }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .info-icon { font-size: 1.5rem; margin-bottom: 8px; }
+  .info-title { font-size: .875rem; font-weight: 600; margin-bottom: 4px; }
+  .info-desc { font-size: .75rem; color: var(--muted); line-height: 1.4; }
+
+  /* ── Misc ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none !important; }
+
+  .partial-footer {
+    padding: 10px 20px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<h1>Phân Tích Báo Cáo Tài Chính AI</h1>
+<p class="subtitle">Upload PDF / Excel / CSV — 10 AI agents phân tích song song → xuất PDF chuyên nghiệp</p>
+
+<!-- Upload Zone -->
+<div id="upload-zone">
+  <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv">
+  <div class="icon">📊</div>
+  <p class="label">Kéo thả file vào đây hoặc click để chọn</p>
+  <p class="hint">PDF, Excel (.xlsx / .xls), CSV — tối đa 10MB</p>
+</div>
+
+<!-- Progress Card -->
+<div id="progress-card" class="card hidden">
+  <div class="card-header">
+    <div>
+      <div class="file-name" id="p-filename">file.pdf</div>
+      <div class="status-line" id="p-status">Đang khởi động...</div>
+    </div>
+    <div class="counter">
+      <strong id="p-count">0</strong><span>/10 agents</span>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="p-bar"></div>
+  </div>
+
+  <div class="agent-list" id="agent-list"></div>
+
+  <!-- Partial download (shown during analysis) -->
+  <div id="partial-footer" class="partial-footer hidden">
+    <button class="btn btn-partial" id="btn-partial">📄 Tải PDF một phần</button>
+  </div>
+
+  <!-- Done footer -->
+  <div id="done-footer" class="card-footer hidden">
+    <button class="btn btn-primary" id="btn-download">📥 Tải Báo Cáo PDF</button>
+    <button class="btn btn-secondary" id="btn-reset">Phân tích mới</button>
+  </div>
+</div>
+
+<!-- Error -->
+<div id="error-box" class="error-box">
+  <div class="error-icon">⚠</div>
+  <div>
+    <div class="error-title">Đã xảy ra lỗi</div>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+  <button class="error-retry" id="btn-retry">Thử lại</button>
+</div>
+
+<!-- Info cards (shown on idle) -->
+<div id="info-cards" class="info-row">
+  <div class="info-card"><div class="info-icon">📤</div><div class="info-title">Upload</div><div class="info-desc">PDF, Excel hoặc CSV báo cáo tài chính</div></div>
+  <div class="info-card"><div class="info-icon">🤖</div><div class="info-title">10 AI Agents</div><div class="info-desc">Phân tích tuần tự từng khía cạnh tài chính</div></div>
+  <div class="info-card"><div class="info-icon">📋</div><div class="info-title">Nhận PDF</div><div class="info-desc">Báo cáo chuyên nghiệp, sẵn sàng in ấn</div></div>
+</div>
+
+<script>
+const AGENT_NAMES = [
+  'Document Parser', 'Revenue Analyzer', 'Cost Analyzer', 'Profit Analyzer',
+  'Cashflow Analyzer', 'Balance Sheet Analyzer', 'Financial Ratio Calculator',
+  'Trend Analyzer', 'Risk Assessor', 'Synthesizer'
+]
+
+// ── State ──────────────────────────────────────────────────────────────────
+let state = 'idle'   // idle | uploading | analyzing | done | error
+let sessionId = null
+let eventSource = null
+let agentStatuses = AGENT_NAMES.map((name, i) => ({ id: i+1, name, status: 'pending' }))
+let completedCount = 0
+
+// ── Elements ───────────────────────────────────────────────────────────────
+const $upload     = document.getElementById('upload-zone')
+const $fileInput  = document.getElementById('file-input')
+const $progCard   = document.getElementById('progress-card')
+const $infoCards  = document.getElementById('info-cards')
+const $errorBox   = document.getElementById('error-box')
+const $pFilename  = document.getElementById('p-filename')
+const $pStatus    = document.getElementById('p-status')
+const $pCount     = document.getElementById('p-count')
+const $pBar       = document.getElementById('p-bar')
+const $agentList  = document.getElementById('agent-list')
+const $doneFt     = document.getElementById('done-footer')
+const $partialFt  = document.getElementById('partial-footer')
+const $btnDown    = document.getElementById('btn-download')
+const $btnPartial = document.getElementById('btn-partial')
+const $btnReset   = document.getElementById('btn-reset')
+const $btnRetry   = document.getElementById('btn-retry')
+const $errMsg     = document.getElementById('error-msg')
+
+// ── Init agent list ────────────────────────────────────────────────────────
+function renderAgentList() {
+  $agentList.innerHTML = agentStatuses.map(a => `
+    <div class="agent-row ${a.status === 'completed' ? 'done' : a.status === 'running' ? 'running' : a.status === 'error' ? 'error' : ''}">
+      <div class="agent-icon ${a.status === 'completed' ? 'done' : a.status === 'running' ? 'running' : a.status === 'error' ? 'error' : 'pending'}">
+        ${a.status === 'completed' ? '✓' : a.status === 'error' ? '✕' : a.status === 'running' ? '' : a.id}
+      </div>
+      <div class="agent-name">Agent ${a.id} — ${a.name}</div>
+      <span class="agent-badge badge-${a.status === 'completed' ? 'done' : a.status === 'running' ? 'running' : a.status === 'error' ? 'error' : 'pending'}">
+        ${a.status === 'completed' ? 'Xong' : a.status === 'running' ? 'Đang chạy' : a.status === 'error' ? 'Lỗi' : 'Chờ'}
+      </span>
+    </div>
+  `).join('')
+}
+
+// ── Transitions ────────────────────────────────────────────────────────────
+function showUpload() {
+  $upload.classList.remove('hidden')
+  $progCard.classList.add('hidden')
+  $errorBox.classList.remove('show')
+  $infoCards.classList.remove('hidden')
+}
+
+function showProgress(fileName) {
+  $upload.classList.add('hidden')
+  $errorBox.classList.remove('show')
+  $infoCards.classList.add('hidden')
+  $progCard.classList.remove('hidden')
+  $doneFt.classList.add('hidden')
+  $partialFt.classList.add('hidden')
+  $pFilename.textContent = fileName
+  $pStatus.textContent = 'Đang upload...'
+  agentStatuses = AGENT_NAMES.map((name, i) => ({ id: i+1, name, status: 'pending' }))
+  completedCount = 0
+  $pCount.textContent = '0'
+  $pBar.style.width = '0%'
+  renderAgentList()
+}
+
+function updateAgents(statuses) {
+  if (!statuses) return
+  agentStatuses = statuses
+  completedCount = statuses.filter(a => a.status === 'completed').length
+  $pCount.textContent = completedCount
+  $pBar.style.width = `${(completedCount / 10) * 100}%`
+  renderAgentList()
+}
+
+function setStatus(text) { $pStatus.textContent = text }
+
+function showDone() {
+  state = 'done'
+  setStatus('Phân tích hoàn thành ✓')
+  $doneFt.classList.remove('hidden')
+  $partialFt.classList.add('hidden')
+}
+
+function showPartialDownload() {
+  if (completedCount > 0 && state === 'analyzing') {
+    $partialFt.classList.remove('hidden')
+  }
+}
+
+function showError(msg) {
+  state = 'error'
+  $upload.classList.remove('hidden')
+  $progCard.classList.add('hidden')
+  $infoCards.classList.add('hidden')
+  $errMsg.textContent = msg
+  $errorBox.classList.add('show')
+  if (eventSource) { eventSource.close(); eventSource = null }
+}
+
+// ── File handling ──────────────────────────────────────────────────────────
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = e => resolve(e.target.result.split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+const ALLOWED_EXT = ['pdf', 'xlsx', 'xls', 'csv']
+
+async function handleFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase()
+  if (!ALLOWED_EXT.includes(ext)) {
+    showError('Chỉ hỗ trợ PDF, Excel (.xlsx/.xls), hoặc CSV')
+    return
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showError('File quá lớn. Tối đa 10MB')
+    return
+  }
+
+  state = 'uploading'
+  showProgress(file.name)
+  if (eventSource) { eventSource.close(); eventSource = null }
+
+  let base64
+  try {
+    base64 = await fileToBase64(file)
+  } catch {
+    showError('Không thể đọc file')
+    return
+  }
+
+  setStatus('Đang upload & parse file...')
+
+  let res, data
+  try {
+    res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, mimeType: file.type, data: base64 })
+    })
+    data = await res.json()
+  } catch {
+    showError('Không thể kết nối đến server. Đảm bảo test-server.ts đang chạy.')
+    return
+  }
+
+  if (!res.ok) {
+    showError(data.error || 'Lỗi upload')
+    return
+  }
+
+  sessionId = data.sessionId
+  state = 'analyzing'
+  setStatus('Đang phân tích...')
+  startSSE()
+}
+
+// ── SSE ────────────────────────────────────────────────────────────────────
+function startSSE() {
+  if (eventSource) eventSource.close()
+  eventSource = new EventSource(`/stream?sessionId=${sessionId}`)
+
+  eventSource.onmessage = e => {
+    const data = JSON.parse(e.data)
+
+    if (data.type === 'init') {
+      updateAgents(data.agentStatuses)
+    }
+
+    if (data.type === 'agent_complete') {
+      updateAgents(data.agentStatuses)
+      showPartialDownload()
+    }
+
+    if (data.type === 'complete') {
+      updateAgents(data.agentStatuses)
+      showDone()
+      eventSource.close()
+    }
+
+    if (data.type === 'error') {
+      showError(data.message || 'Pipeline thất bại')
+      eventSource.close()
+    }
+  }
+
+  eventSource.onerror = () => {
+    if (state === 'done') return
+    // SSE disconnected but pipeline might still run — fall back to polling
+    eventSource.close()
+    startPolling()
+  }
+}
+
+// ── Polling fallback ───────────────────────────────────────────────────────
+let pollTimer = null
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer)
+  setStatus('Đang phân tích... (polling mode)')
+  pollTimer = setInterval(async () => {
+    if (state === 'done' || state === 'error') { clearInterval(pollTimer); return }
+    try {
+      const res = await fetch(`/status?sessionId=${sessionId}`)
+      const data = await res.json()
+      updateAgents(data.agentStatuses)
+      if (data.status === 'completed') {
+        clearInterval(pollTimer)
+        showDone()
+      } else if (data.status === 'error') {
+        clearInterval(pollTimer)
+        showError('Pipeline thất bại')
+      } else {
+        showPartialDownload()
+      }
+    } catch { /* ignore */ }
+  }, 1500)
+}
+
+// ── Buttons ────────────────────────────────────────────────────────────────
+$btnDown.addEventListener('click', () => {
+  window.open(`/export-pdf?sessionId=${sessionId}`, '_blank')
+})
+$btnPartial.addEventListener('click', () => {
+  window.open(`/export-pdf?sessionId=${sessionId}`, '_blank')
+})
+$btnReset.addEventListener('click', () => {
+  if (eventSource) { eventSource.close(); eventSource = null }
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
+  state = 'idle'; sessionId = null
+  showUpload()
+  $fileInput.value = ''
+})
+$btnRetry.addEventListener('click', () => {
+  $errorBox.classList.remove('show')
+  state = 'idle'
+  showUpload()
+})
+
+// ── Drag & Drop ────────────────────────────────────────────────────────────
+$upload.addEventListener('click', () => $fileInput.click())
+$upload.addEventListener('dragover', e => { e.preventDefault(); $upload.classList.add('drag') })
+$upload.addEventListener('dragleave', () => $upload.classList.remove('drag'))
+$upload.addEventListener('drop', e => {
+  e.preventDefault()
+  $upload.classList.remove('drag')
+  const file = e.dataTransfer.files[0]
+  if (file) handleFile(file)
+})
+$fileInput.addEventListener('change', e => {
+  const file = e.target.files[0]
+  if (file) handleFile(file)
+})
+</script>
+</body>
+</html>

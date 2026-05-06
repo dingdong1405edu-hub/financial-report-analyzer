@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #1e3a5f;
+  --accent: #2e86de;
+}
+
+body {
+  background-color: #f0f4f8;
+  color: #1a1a2e;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
