@@ -1,8 +1,5 @@
 import { Document, Page, StyleSheet } from '@react-pdf/renderer'
 import type { ReportJSON } from '@/types/report'
-import { registerFonts } from '@/lib/pdf-fonts'
-
-registerFonts()
 import CoverPage from './CoverPage'
 import ParsedSection from './ParsedSection'
 import SummarySection from './SummarySection'
